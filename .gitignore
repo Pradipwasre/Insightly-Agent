@@ -1,0 +1,16 @@
+# Secrets
+.env
+
+# Data: too large for git (shop.db ~740 MB, events.csv ~385 MB)
+data/
+data files/*
+!data files/README.md
+!data files/.gitkeep
+*.db
+*.db-shm
+*.db-wal
+
+# Python / OS clutter
+__pycache__/
+*.pyc
+.DS_Store

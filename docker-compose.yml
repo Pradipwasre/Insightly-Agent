@@ -1,0 +1,36 @@
+services:
+  api:                                           # FastAPI + the agents
+    build: .
+    image: insightly-lite
+    ports:
+      - "${API_PORT:-8000}:8000"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./data:/code/data                        # shop.db + memory.db live here, so they survive restarts
+      - "./data files:/code/data files:ro"       # your CSV files, read-only
+      - ./evals:/code/evals                      # eval results are written back to your folder
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      retries: 3
+      start_period: 600s                         # the first start loads the CSVs (a few minutes)
+
+  ui:                                            # Streamlit web app
+    build: .
+    image: insightly-lite
+    command: streamlit run ui/app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "${UI_PORT:-8501}:8501"
+    environment:
+      API_URL: http://api:8000
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: "false"
+      STREAMLIT_THEME_BASE: light
+      STREAMLIT_THEME_PRIMARY_COLOR: "#C96442"
+      STREAMLIT_THEME_BACKGROUND_COLOR: "#FAF9F5"
+      STREAMLIT_THEME_SECONDARY_BACKGROUND_COLOR: "#F0EEE6"
+      STREAMLIT_THEME_TEXT_COLOR: "#1F1E1D"
+    depends_on:
+      api:
+        condition: service_healthy
