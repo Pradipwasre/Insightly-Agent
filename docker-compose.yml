@@ -18,8 +18,8 @@ services:
       start_period: 600s                         # the first start loads the CSVs (a few minutes)
 
   ui:                                            # Streamlit web app
-    build: .
-    image: insightly-lite
+    image: insightly-lite                        # reuses the image the api service builds (no second build)
+    pull_policy: never                           # it's a local image, never look for it on Docker Hub
     command: streamlit run ui/app.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "${UI_PORT:-8501}:8501"
