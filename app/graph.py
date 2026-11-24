@@ -156,4 +156,5 @@ def build_graph():
 
     # Every step is saved per thread_id in memory.db, so chats survive restarts
     saver = SqliteSaver(sqlite3.connect(config.MEMORY_DB, check_same_thread=False))
+    saver.setup()  # create the tables now, so /threads works on a fresh install before the first chat
     return g.compile(checkpointer=saver)

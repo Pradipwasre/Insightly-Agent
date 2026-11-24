@@ -70,7 +70,7 @@ https://platform.claude.com/settings/keys (an OpenAI or Groq key also works).
 
 ```powershell
 cd D:\insightly-lite
-copy .env.example .env
+if (!(Test-Path .env)) { copy .env.example .env }   # only the first time
 notepad .env                 # paste your key after ANTHROPIC_API_KEY=
 docker compose up --build
 ```
@@ -79,7 +79,7 @@ docker compose up --build
 
 ```bash
 cd ~/insightly-lite
-cp .env.example .env
+[ -f .env ] || cp .env.example .env   # only the first time
 open -e .env                 # paste your key after ANTHROPIC_API_KEY=
 docker compose up --build
 ```
@@ -107,6 +107,15 @@ API_PORT=8100 UI_PORT=8601 docker compose up
 
 Your key stays in `.env`. That file is git-ignored and never copied into the
 Docker image.
+
+### Troubleshooting
+
+| Error | Cause | Fix |
+|---|---|---|
+| `Could not find a version that satisfies the requirement fastapi==... (from versions: none)` | pip inside Docker can't reach PyPI (network/DNS), not a wrong version | Check your internet, turn off VPN/proxy for a moment, **restart Docker Desktop**, then `docker compose build --no-cache` and `docker compose up`. Still failing: Docker Desktop, Settings, Docker Engine, add `"dns": ["8.8.8.8", "1.1.1.1"]`, Apply & restart |
+| `No API key found for LLM_PROVIDER=...` | `.env` has no key (for example after `cp .env.example .env` overwrote it) | Open `.env`, paste your key after `ANTHROPIC_API_KEY=`, then `docker compose up -d` |
+| `port is already allocated` | Another app uses 8000 or 8501 | See "Ports already in use?" above |
+| UI shows "API offline" for a few minutes on first start | `shop.db` is being built from the CSVs | Wait; follow along with `docker compose logs -f api` |
 
 ## The web app
 

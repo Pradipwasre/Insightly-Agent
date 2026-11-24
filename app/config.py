@@ -7,7 +7,8 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
 # "anthropic", "openai" or "groq". Empty = pick whichever key is set.
 PROVIDER = os.getenv("LLM_PROVIDER", "") or (
-    "anthropic" if ANTHROPIC_API_KEY else "openai" if OPENAI_API_KEY else "groq")
+    "anthropic" if ANTHROPIC_API_KEY else "openai" if OPENAI_API_KEY
+    else "groq" if GROQ_API_KEY else "anthropic")
 
 DEFAULT_MODELS = {"anthropic": "claude-haiku-5-5", "openai": "gpt-5.4-mini", "groq": "openai/gpt-oss-120b"}
 MODEL = os.getenv("LLM_MODEL", "") or DEFAULT_MODELS[PROVIDER]

@@ -2,8 +2,17 @@
 from app import config
 
 
+KEY_NAMES = {"anthropic": "ANTHROPIC_API_KEY", "openai": "OPENAI_API_KEY", "groq": "GROQ_API_KEY"}
+
+
 def get_llm(model=None):
     model = model or config.MODEL
+    key_name = KEY_NAMES.get(config.PROVIDER)
+    if key_name and not getattr(config, key_name):
+        # Fail with a clear message instead of a confusing error from the provider's SDK
+        raise RuntimeError(
+            f"No API key found for LLM_PROVIDER='{config.PROVIDER}'. "
+            f"Open .env and set {key_name}=your-key (see .env.example), then run: docker compose up -d")
     if config.PROVIDER == "anthropic":
         from langchain_anthropic import ChatAnthropic
         # max_tokens caps the answer length (and so the worst-case cost); answers here are short

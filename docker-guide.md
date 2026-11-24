@@ -203,13 +203,14 @@ This diagram is the most important part of the guide.
 
 ## 4. The Dockerfile, Line by Line
 
-The whole Dockerfile is only **9 lines** long:
+The whole Dockerfile is only **10 instructions** long:
 
 ```dockerfile
 FROM python:3.12-slim
 WORKDIR /code
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --retries 10 --timeout 60 -r requirements.txt
 COPY app ./app
 COPY ui ./ui
 COPY tests ./tests
@@ -230,16 +231,22 @@ Create a folder called `/code` inside the container and move into it. All the ne
 
 Think of it as: "This is our counter in the kitchen."
 
+### `ENV PYTHONUNBUFFERED=1 ...`
+
+Set settings inside the container: logs appear live (no buffering), Python writes no `.pyc` files, and pip doesn't print its "new version available" notice.
+
 ### `COPY requirements.txt .`
 
 Take `requirements.txt` from your laptop and put it in `/code/` inside the container. The `.` means "the current folder", which is `/code`.
 
-### `RUN pip install --no-cache-dir -r requirements.txt`
+### `RUN pip install --no-cache-dir --retries 10 --timeout 60 -r requirements.txt`
 
 Install all the libraries: FastAPI, LangGraph, langchain-anthropic, pandas, plotly, streamlit and others.
 
 - `RUN` runs **while the image is being built** (only once).
 - `--no-cache-dir` tells pip not to keep its download cache, so the image stays smaller.
+- `--retries 10 --timeout 60` make pip try again on a slow or flaky network instead of failing at once.
+- If this step fails with `from versions: none`, Docker can't reach the internet (PyPI). It is a network problem, not a code problem: restart Docker Desktop and build again.
 
 ### Why copy `requirements.txt` first, and the code later?
 
@@ -532,7 +539,7 @@ docker compose up --build
  => [1/8] FROM docker.io/library/python:3.12-slim                       0.0s
  => CACHED [2/8] WORKDIR /code                                          0.0s
  => CACHED [3/8] COPY requirements.txt .                                0.0s
- => CACHED [4/8] RUN pip install --no-cache-dir -r requirements.txt     0.0s
+ => CACHED [4/8] RUN pip install --no-cache-dir --retries 10 --timeout 60 -r requirements.txt  0.0s
  => [5/8] COPY app ./app                                                0.1s
  => [6/8] COPY ui ./ui                                                  0.0s
  => [7/8] COPY tests ./tests                                            0.0s
