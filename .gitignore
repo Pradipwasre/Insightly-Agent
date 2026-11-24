@@ -10,5 +10,8 @@ venv/
 *.db-shm
 *.db-journal
 data files/
-.dockerignore
 .DS_Store
+
+# Local tool settings and macOS junk files
+.claude/settings.local.json
+._*

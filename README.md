@@ -190,7 +190,7 @@ There is one short file per metric in `evals/metrics/`. The test set is
 
 Latest scores are for `claude-haiku-5-5` (Nov 2026).
 
-See `REPORT.md` for the details.
+See `docs/REPORT.md` for the details.
 
 ## Models and cost
 

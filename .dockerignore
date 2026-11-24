@@ -1,6 +1,8 @@
 .env
 data
 data files
+.git
 **/__pycache__
 *.pyc
 *.html
+**/._*
