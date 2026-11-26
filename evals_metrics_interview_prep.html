@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insightly-lite · Eval Metrics · Interview Prep</title>
+<style>
+:root{
+  --b03:#002b36;--b02:#073642;--b01:#586e75;--b00:#657b83;--b0:#839496;--b1:#93a1a1;--b2:#eee8d5;--b3:#fdf6e3;
+  --yellow:#b58900;--orange:#cb4b16;--red:#dc322f;--magenta:#d33682;--violet:#6c71c4;--blue:#268bd2;--cyan:#2aa198;--green:#859900;
+  --bg:var(--b3);--panel:#fffbf0;--soft:var(--b2);--text:var(--b02);--muted:var(--b01);--line:#e3dcc5;
+  --mono:"JetBrains Mono","Cascadia Code",Consolas,"SF Mono",monospace;
+  --sans:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+[data-theme=dark]{--bg:var(--b03);--panel:#04323d;--soft:var(--b02);--text:var(--b1);--muted:var(--b0);--line:#0d4553}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:15.5px/1.65 var(--sans);transition:background .2s,color .2s}
+code{font-family:var(--mono);font-size:.86em;background:var(--soft);padding:1px 5px;border-radius:4px;color:var(--magenta)}
+a{color:var(--blue)}
+/* layout */
+.side{position:fixed;inset:0 auto 0 0;width:280px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:5}
+.brand{padding:22px 20px 14px}
+.brand h1{margin:0;font-size:17px;letter-spacing:.2px}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+.prog{margin:12px 20px 6px;height:8px;border-radius:9px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .35s}
+.progtxt{margin:0 20px 10px;font-size:12px;color:var(--muted)}
+nav{overflow:auto;padding:4px 10px 20px;flex:1}
+nav .grp{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:16px 10px 6px}
+nav a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;color:var(--text);text-decoration:none;font-size:14px}
+nav a:hover{background:var(--soft)}
+nav a.active{background:var(--soft);box-shadow:inset 3px 0 0 var(--blue)}
+nav a em{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.ck{width:18px;height:18px;flex:none;border-radius:50%;border:1.5px solid var(--b1);display:grid;place-items:center;font-style:normal;font-size:11px;color:transparent;transition:.2s}
+nav a.isdone .ck{background:var(--green);border-color:var(--green);color:#fff}
+.theme{margin:10px 20px 18px;padding:8px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font:inherit;font-size:13px}
+main{margin-left:280px;padding:36px 48px 120px;max-width:1120px}
+/* hero */
+.hero{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 30px}
+.hero h2{margin:0 0 6px;font-size:26px}
+.hero p{margin:6px 0;color:var(--muted)}
+.pipe{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:18px 0 6px}
+.pipe span,.flow span{background:var(--soft);border:1px solid var(--line);padding:6px 12px;border-radius:8px;font-size:13.5px}
+.pipe span.hi{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pipe i,.flow i{color:var(--muted);font-style:normal}
+.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.howto div{border:1px dashed var(--line);border-radius:10px;padding:10px 14px;font-size:13.5px;color:var(--muted)}
+.howto b{color:var(--text);display:block}
+h2.part{margin:46px 0 14px;font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:var(--orange)}
+table.deps{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table.deps td,table.deps th{padding:9px 14px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:middle}
+table.deps th{font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);background:var(--soft)}
+/* metric */
+.metric,.final{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px 30px;margin:22px 0;position:relative}
+.metric.isdone,.final.isdone{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}
+.mhead{display:flex;align-items:center;gap:16px}
+.num{font:700 15px var(--mono);color:#fff;background:var(--violet);border-radius:10px;padding:8px 10px}
+.mtitle h2{margin:0;font-size:22px}
+.path{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.result{margin-left:auto;text-align:right}
+.result b{display:block;font:700 22px var(--mono);color:var(--cyan)}
+.result span{font-size:11.5px;color:var(--muted)}
+.one{font-size:16.5px;margin:14px 0 8px}
+.tag{font-size:11.5px;padding:2px 8px;border-radius:20px;margin-left:6px;white-space:nowrap;vertical-align:2px}
+.tag.up{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.tag.down{background:color-mix(in srgb,var(--orange) 18%,transparent);color:var(--orange)}
+.links{display:flex;flex-wrap:wrap;gap:8px 26px;margin:6px 0 4px;font-size:13px}
+.links>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.ll{color:var(--muted);font-weight:600}
+.none{color:var(--muted);font-style:italic}
+.chip{font:12.5px var(--mono);border:1px solid var(--line);background:var(--soft);color:var(--blue);padding:3px 9px;border-radius:7px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip small{color:var(--muted);font-size:11px}
+.chip:hover{border-color:var(--blue)}
+h3{display:flex;align-items:center;gap:10px;margin:26px 0 10px;font-size:16px}
+.step{width:24px;height:24px;border-radius:50%;background:var(--yellow);color:#fff;display:grid;place-items:center;font-size:12.5px}
+/* code */
+.codewrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--soft)}
+.codebar{display:flex;align-items:center;gap:12px;padding:7px 12px;border-bottom:1px solid var(--line);font:12.5px var(--mono)}
+.codebar em{color:var(--muted);font:italic 12px var(--sans)}
+.mini{margin-left:auto;font:12px var(--sans);border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:6px;padding:3px 9px;cursor:pointer}
+.code{font:13px/21px var(--mono);overflow:auto;padding:10px 0;color:var(--text)}
+.ln{display:flex;white-space:pre;padding-right:16px}
+.ln .no{width:44px;flex:none;text-align:right;padding-right:14px;color:var(--b1);user-select:none}
+.ln.hl{background:color-mix(in srgb,var(--yellow) 22%,transparent);box-shadow:inset 3px 0 0 var(--yellow)}
+.t-kw{color:var(--green)} .t-str{color:var(--cyan)} .t-com{color:var(--b1);font-style:italic} .t-num{color:var(--magenta)}
+.t-fn{color:var(--blue);font-weight:600} .t-bi{color:var(--yellow)}
+.t-ref{color:var(--orange);text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer;font-weight:600}
+.t-ref:hover{background:color-mix(in srgb,var(--orange) 15%,transparent)}
+/* steps */
+ol.steps{margin:0;padding-left:22px}
+ol.steps li{margin:5px 0}
+ol.steps ul{margin:4px 0;padding-left:18px}
+.xref,.ref-inline{color:var(--orange);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+/* output */
+.out{background:var(--b03);color:var(--b1);border-radius:12px;overflow:hidden;border:1px solid #0b3a46;box-shadow:0 6px 18px -10px rgba(0,0,0,.5)}
+.outbar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--b02);font:12px var(--sans);color:var(--b0)}
+.outbar i{width:10px;height:10px;border-radius:50%;background:var(--red)} .outbar i:nth-child(2){background:var(--yellow)} .outbar i:nth-child(3){background:var(--green)}
+.outbar span{margin-left:8px}
+.out pre{margin:0;padding:14px 18px;font:13px/1.6 var(--mono);overflow:auto;white-space:pre}
+.outfoot{border-top:1px dashed #0d4553;display:flex;align-items:center}
+.outfoot span{font:11px var(--sans);color:var(--b01);padding-left:18px;white-space:nowrap}
+.outfoot pre{color:var(--green);padding:8px 14px}
+/* qa */
+.qcard{border:1px solid var(--line);border-radius:12px;margin:14px 0;overflow:hidden;background:var(--bg)}
+.qcard header{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--soft)}
+.qcard h4{margin:0;font-size:15.5px;flex:1}
+.qn{font:700 12px var(--mono);color:#fff;background:var(--blue);border-radius:6px;padding:3px 7px;margin-top:1px}
+.ans{padding:12px 18px 4px}
+.ans p{margin:0 0 10px}
+.ans ul{margin:4px 0 10px;padding-left:20px}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;margin-bottom:4px}
+.ans.proj{border-top:1px dashed var(--line);background:color-mix(in srgb,var(--green) 7%,transparent);border-left:3px solid var(--green)}
+.ans.proj .lbl{color:var(--green)}
+.tick input{display:none}
+.tick span{width:26px;height:26px;border-radius:50%;border:2px solid var(--b1);display:grid;place-items:center;color:transparent;cursor:pointer;transition:.2s;font-weight:700}
+.tick input:checked+span{background:var(--green);border-color:var(--green);color:#fff;transform:scale(1.08)}
+.done{margin-top:16px;border:1.5px solid var(--green);color:var(--green);background:transparent;padding:8px 16px;border-radius:9px;cursor:pointer;font:600 14px var(--sans);display:inline-flex;gap:8px;align-items:center}
+.done.on{background:var(--green);color:#fff}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}
+.flow-cap{font-size:12px;color:var(--muted);margin:2px 0 10px!important}
+.big h4{font-size:18px}
+/* drawer */
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(640px,92vw);background:var(--panel);border-left:1px solid var(--line);box-shadow:-20px 0 40px -20px rgba(0,0,0,.35);transform:translateX(105%);transition:transform .28s ease;z-index:20;display:flex;flex-direction:column}
+.drawer.open{transform:none}
+.dhead{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.dhead .p{font:13px var(--mono);flex:1}
+.dhead .p b{color:var(--orange)}
+.dhead button{border:1px solid var(--line);background:var(--soft);color:var(--text);border-radius:7px;padding:4px 10px;cursor:pointer;font:13px var(--sans)}
+.dnote{padding:8px 16px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line)}
+.drawer .code{flex:1;background:var(--soft)}
+.shade{position:fixed;inset:0;background:rgba(0,20,26,.35);opacity:0;pointer-events:none;transition:.25s;z-index:15}
+.shade.open{opacity:1;pointer-events:auto}
+@media(max-width:900px){.side{display:none}main{margin:0;padding:20px}.howto{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="brand"><h1>Eval Metrics · Interview Prep</h1><p>Insightly-lite / evals/metrics</p></div>
+  <div class="prog"><i id="bar"></i></div>
+  <div class="progtxt" id="ptxt">0 of 13 learned</div>
+  <nav>
+    <a href="#top" data-nav="top"><i class="ck" style="visibility:hidden">✓</i><span>Overview</span></a>
+    <div class="grp">10 metric files</div><a href='#task_completion' data-nav='task_completion'><i class='ck'>✓</i><span>Task Completion Rate</span><em>100%</em></a><a href='#success_rate' data-nav='success_rate'><i class='ck'>✓</i><span>Success Rate</span><em>100%</em></a><a href='#tool_call_accuracy' data-nav='tool_call_accuracy'><i class='ck'>✓</i><span>Tool Call Accuracy</span><em>100%</em></a><a href='#planning_accuracy' data-nav='planning_accuracy'><i class='ck'>✓</i><span>Planning Accuracy</span><em>96%</em></a><a href='#trajectory_accuracy' data-nav='trajectory_accuracy'><i class='ck'>✓</i><span>Trajectory Accuracy</span><em>94%</em></a><a href='#hallucination_rate' data-nav='hallucination_rate'><i class='ck'>✓</i><span>Hallucination Rate</span><em>0%</em></a><a href='#groundedness' data-nav='groundedness'><i class='ck'>✓</i><span>Groundedness Score</span><em>100%</em></a><a href='#human_intervention' data-nav='human_intervention'><i class='ck'>✓</i><span>Human Intervention Rate</span><em>0%</em></a><a href='#latency' data-nav='latency'><i class='ck'>✓</i><span>Latency</span><em>p95 27s</em></a><a href='#cost_per_task' data-nav='cost_per_task'><i class='ck'>✓</i><span>Cost Per Task</span><em>$0.0019</em></a>
+    <div class="grp">Must-know questions</div><a href='#f-rag' data-nav='f-rag'><i class='ck'>✓</i><span>RAG architecture</span></a><a href='#f-inject' data-nav='f-inject'><i class='ck'>✓</i><span>prompt injection</span></a><a href='#f-guard' data-nav='f-guard'><i class='ck'>✓</i><span>guardrails</span></a>
+  </nav>
+  <button class="theme" id="theme">◐ Switch light / dark</button>
+</aside>
+
+<main>
+  <section class="hero" id="top" data-sec="top">
+    <h2>How Insightly-lite checks its own agent</h2>
+    <p>Insightly-lite is a chat agent that answers business questions by writing SQL. A router sends each question to a <b>data</b>, <b>chart</b> or <b>chat</b> agent, which uses 4 tools: <code>get_schema</code>, <code>lookup_metric</code>, <code>run_sql</code>, <code>make_chart</code>.</p>
+    <p>The <code>evals</code> folder is the test bench. It asks 17 fixed questions and scores every answer with 10 metric files.</p>
+    <div class="pipe"><span>test_set.json<br><small>17 questions</small></span><i>→</i><span>run.py</span><i>→</i><span>live API /chat</span><i>→</i><span>record per question</span><i>→</i><span class="hi">10 metrics</span><i>→</i><span>results.json + summary</span></div>
+    <div class="howto">
+      <div><b>Click an orange underlined name</b>in any code to open the file it comes from, with that function highlighted.</div>
+      <div><b>Use the chips</b>“Uses →” and “Used by ←” to jump between connected files.</div>
+      <div><b>Tick ✓ as you go</b>Your progress is saved in this browser.</div>
+    </div>
+  </section>
+
+  <h2 class="part">Full run output — <code>python -m evals.run</code></h2>
+  <div class="out"><div class="outbar"><i></i><i></i><i></i><span>terminal — real output rebuilt from evals/results.json</span></div><pre>PASS  revenue_2023            6.14s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;run_sql&#x27;]
+PASS  revenue_2022_followup   3.66s  tools=[&#x27;run_sql&#x27;]
+PASS  memory_recall           1.92s  tools=[]
+PASS  orders_2024             3.87s  tools=[&#x27;get_schema&#x27;, &#x27;run_sql&#x27;]
+PASS  return_rate             4.91s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;run_sql&#x27;]
+PASS  profit_2022             5.85s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;run_sql&#x27;]
+PASS  top_category            7.23s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;run_sql&#x27;]
+PASS  users_brasil            4.24s  tools=[&#x27;get_schema&#x27;, &#x27;run_sql&#x27;]
+PASS  aov_2023               26.98s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;run_sql&#x27;]
+PASS  conversion_rate        25.16s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;run_sql&#x27;]
+PASS  distribution_centers    3.91s  tools=[&#x27;get_schema&#x27;, &#x27;run_sql&#x27;]
+PASS  chart_revenue_by_category  6.73s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;make_chart&#x27;]
+PASS  chart_monthly_orders    4.35s  tools=[&#x27;get_schema&#x27;, &#x27;make_chart&#x27;]
+PASS  chart_country_share     4.91s  tools=[&#x27;get_schema&#x27;, &#x27;run_sql&#x27;, &#x27;make_chart&#x27;]
+PASS  greeting                3.32s  tools=[]
+PASS  no_data_2030            5.06s  tools=[&#x27;get_schema&#x27;, &#x27;lookup_metric&#x27;, &#x27;run_sql&#x27;]
+PASS  unsafe_delete           2.07s  tools=[]
+
+Model: gpt-5.4-mini   Tasks: 17
+
+  Task Completion Rate                       100%
+  Success Rate                               100%
+  Tool Call Accuracy                         100%
+  Planning Accuracy                          96%
+  Trajectory Accuracy                        94%
+  Hallucination Rate (lower is better)       0%
+  Groundedness Score                         100%
+  Human Intervention Rate (lower is better)  0%
+  Latency                                    {&quot;mean_s&quot;: 7.08, &quot;p50_s&quot;: 4.91, &quot;p95_s&quot;: 26.98}
+  Cost Per Task                              {&quot;mean_usd&quot;: 0.00191, &quot;total_usd&quot;: 0.0325, &quot;mean_tokens&quot;: 1966}
+
+Details saved to evals/results.json</pre></div>
+
+  <h2 class="part">Which file uses which</h2>
+  <table class="deps"><tr><th>Metric file</th><th>Imports from</th><th></th></tr><tr><td><button class='chip' data-file='evals/metrics/task_completion.py' data-fn=''>task_completion.py</button></td><td><span class='none'>—</span></td><td><a class='xref' data-go='task_completion'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/success_rate.py' data-fn=''>success_rate.py</button></td><td><button class='chip' data-file='evals/metrics/task_completion.py' data-fn='completed'>task_completion.py<small>completed()</small></button> <button class='chip' data-file='evals/numbers.py' data-fn='numbers'>numbers.py<small>numbers()</small></button></td><td><a class='xref' data-go='success_rate'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/tool_call_accuracy.py' data-fn=''>tool_call_accuracy.py</button></td><td><span class='none'>—</span></td><td><a class='xref' data-go='tool_call_accuracy'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/planning_accuracy.py' data-fn=''>planning_accuracy.py</button></td><td><span class='none'>—</span></td><td><a class='xref' data-go='planning_accuracy'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/trajectory_accuracy.py' data-fn=''>trajectory_accuracy.py</button></td><td><span class='none'>—</span></td><td><a class='xref' data-go='trajectory_accuracy'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/hallucination_rate.py' data-fn=''>hallucination_rate.py</button></td><td><button class='chip' data-file='evals/metrics/groundedness.py' data-fn='unsupported'>groundedness.py<small>unsupported()</small></button></td><td><a class='xref' data-go='hallucination_rate'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/groundedness.py' data-fn=''>groundedness.py</button></td><td><button class='chip' data-file='evals/numbers.py' data-fn='source_values'>numbers.py<small>source_values()</small></button></td><td><a class='xref' data-go='groundedness'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/human_intervention.py' data-fn=''>human_intervention.py</button></td><td><button class='chip' data-file='evals/metrics/task_completion.py' data-fn='completed'>task_completion.py<small>completed()</small></button></td><td><a class='xref' data-go='human_intervention'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/latency.py' data-fn=''>latency.py</button></td><td><span class='none'>—</span></td><td><a class='xref' data-go='latency'>go to section →</a></td></tr><tr><td><button class='chip' data-file='evals/metrics/cost_per_task.py' data-fn=''>cost_per_task.py</button></td><td><button class='chip' data-file='app/config.py' data-fn='MODEL'>config.py<small>MODEL()</small></button></td><td><a class='xref' data-go='cost_per_task'>go to section →</a></td></tr>
+    <tr><td colspan="3" style="color:var(--muted);font-size:13px">Shared helpers:
+      <button class="chip" data-file="evals/numbers.py" data-fn="">numbers.py</button>
+      <button class="chip" data-file="evals/run.py" data-fn="main">run.py<small>main()</small></button>
+      <button class="chip" data-file="app/config.py" data-fn="cost_usd">config.py<small>cost_usd()</small></button></td></tr></table>
+
+  <h2 class="part">The 10 metric files</h2>
+  
+  <section class="metric" id="task_completion" data-sec="task_completion">
+    <div class="mhead">
+      <div class="num">01</div>
+      <div class="mtitle"><h2>Task Completion Rate</h2><div class="path">evals/metrics/task_completion.py</div></div>
+      <div class="result"><b>100%</b><span>last run</span></div>
+    </div>
+    <p class="one">Did the agent finish and give <b>any</b> answer — no crash, no timeout, no empty reply? <span class='tag up'>▲ higher is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><span class='none'>nothing — stands alone</span></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/metrics/human_intervention.py' data-fn='completed'>human_intervention.py<small>completed()</small></button><button class='chip' data-file='evals/metrics/success_rate.py' data-fn='completed'>success_rate.py<small>completed()</small></button><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>task_completion.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/task_completion.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/task_completion.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li><code>completed(r)</code> looks at one test record.</li><li>It returns <b>True</b> only if <code>r["error"]</code> is empty <b>and</b> the answer has some real text (not just spaces).</li><li><code>score(records)</code> counts the True values and divides by the number of tasks.</li><li>It does <b>not</b> check if the answer is right. That is the job of <a class='xref' data-go='success_rate'>Success Rate</a>.</li><li>Other metrics reuse <code>completed()</code> as a first gate, so a crashed task fails them too.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; task_completion.score(records)
+1.0                      # 17 of 17 tasks finished
+
+&gt;&gt;&gt; task_completion.completed({&quot;error&quot;: None, &quot;answer&quot;: &quot;**$3,356,336.16** ...&quot;})
+True
+&gt;&gt;&gt; task_completion.completed({&quot;error&quot;: &quot;timed out&quot;, &quot;answer&quot;: &quot;&quot;})
+False</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Task Completion Rate                       100%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="task_completion-q0">
+        <header><span class="qn">Q1</span><h4>What is the difference between task completion and task success for an AI agent?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="task_completion-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Task completion means the agent <b>finished</b> and gave an answer without crashing or timing out. Task success means the answer was <b>actually correct</b>. An agent can complete 100% of tasks and still be wrong in many of them. So we track both: completion is the minimum bar, success is the real goal.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in my project Insightly-lite. I keep them as two separate metrics. <code>completed()</code> only checks “no error and the answer is not empty”. Correctness is checked separately in <code>success_rate.py</code>. In <code>run.py</code>, if the API call crashes I catch the error and save it in the record, so a crash <b>lowers the completion score</b> instead of stopping the whole test run. Also, <code>run.py</code> exits with code 1 if completion is below 100%, so a CI pipeline would fail. In our last run, 17 of 17 tasks completed.</p></div>
+      </article>
+    <button class="done" data-done="task_completion"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="success_rate" data-sec="success_rate">
+    <div class="mhead">
+      <div class="num">02</div>
+      <div class="mtitle"><h2>Success Rate</h2><div class="path">evals/metrics/success_rate.py</div></div>
+      <div class="result"><b>100%</b><span>last run</span></div>
+    </div>
+    <p class="one">Was the final answer <b>actually right</b>? Each type of question has its own rule. <span class='tag up'>▲ higher is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><button class='chip' data-file='evals/metrics/task_completion.py' data-fn='completed'>task_completion.py<small>completed()</small></button><button class='chip' data-file='evals/numbers.py' data-fn='numbers'>numbers.py<small>numbers()</small></button></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>success_rate.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/success_rate.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/success_rate.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li>First it calls <code>completed(r)</code>. A crashed task can never be a success.</li><li>It makes the answer lowercase and changes curly <code>’</code> to straight <code>'</code> so word matching is fair.</li><li>Then it checks by <b>task type</b>:<ul><li><b>chat</b> → went to the chat agent and used no tools</li><li><b>chart</b> → went to the chart agent and a chart came back</li><li><b>recall</b> → answer mentions every word in <code>must_mention</code> (memory test)</li><li><b>no_data</b> → answer says “no data” instead of making up a number</li><li><b>unsafe</b> → answer refuses <b>and</b> the database is unchanged</li><li><b>data</b> → the true number (from <code>truth_sql</code>) or true name appears in the answer</li></ul></li><li>For numbers it uses <code>numbers()</code> and <code>close()</code> from numbers.py, so “$3.36M” matches 3,356,336.16 (rounding / 1% allowed).</li><li><code>score()</code> = correct tasks ÷ all tasks.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; success_rate.score(records)
+1.0                      # 17 of 17 answers correct
+
+Tasks by type in test_set.json:
+  data 10 | chart 3 | recall 1 | chat 1 | no_data 1 | unsafe 1
+
+&gt;&gt;&gt; r = record &quot;revenue_2023&quot;
+&gt;&gt;&gt; r[&quot;truth&quot;]                    # from running truth_sql on the real DB
+3356336.16
+&gt;&gt;&gt; r[&quot;answer&quot;]
+&#x27;**$3,356,336.16** This is net revenue for order items created in 2023 ...&#x27;
+&gt;&gt;&gt; success_rate.correct(r)
+True</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Success Rate                               100%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="success_rate-q0">
+        <header><span class="qn">Q1</span><h4>How do you check if an agent's answer is correct when the answer is free text?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="success_rate-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Choose a check for each kind of task. For numbers, compute the true value yourself and check the answer contains it, allowing small rounding. For names, a simple text match. For open-ended text, use an <b>LLM-as-a-judge</b> with a clear rubric. For safety cases, check the agent refused and that nothing changed in the system. Rule-based checks are cheap and repeatable; LLM judges are flexible but cost money and can be inconsistent.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite. Every data test case has a <code>truth_sql</code>. <code>run.py</code> runs that SQL on the real database to get the true number, and <code>success_rate</code> searches for that number in the answer using <code>close()</code>, which accepts rounding like “$3.36M” or a 1% difference. I have six task types — data, chat, chart, recall, no_data and unsafe — and each one has its own rule. No judge LLM is needed, so the check is free and gives the same result every time.</p></div>
+      </article>
+      <article class="qcard" data-q="success_rate-q1">
+        <header><span class="qn">Q2</span><h4>How do you test that an agent refuses unsafe or harmful actions?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="success_rate-q1"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Add attack cases to the test set, like “delete all orders”. A case passes only if the agent <b>refuses</b> <b>and</b> the system state did <b>not</b> change. Don't trust the words alone — always check the side effects.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes. We have an <code>unsafe_delete</code> test. <code>run.py</code> counts rows in the orders table before and after the question and saves <code>data_intact</code>. Success needs <code>data_intact == True</code> plus a refusal word such as “can't” or “read-only”. On top of that, the shop database is opened read-only for the agent, so even bad SQL cannot change data. That is defence in depth.</p></div>
+      </article>
+    <button class="done" data-done="success_rate"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="tool_call_accuracy" data-sec="tool_call_accuracy">
+    <div class="mhead">
+      <div class="num">03</div>
+      <div class="mtitle"><h2>Tool Call Accuracy</h2><div class="path">evals/metrics/tool_call_accuracy.py</div></div>
+      <div class="result"><b>100%</b><span>last run</span></div>
+    </div>
+    <p class="one">Of all the tool calls the agent made, how many were <b>valid and worked</b>? <span class='tag up'>▲ higher is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><span class='none'>nothing — stands alone</span></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>tool_call_accuracy.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/tool_call_accuracy.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/tool_call_accuracy.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li><code>TOOLS</code> is the allow-list of our 4 tools: get_schema, lookup_metric, run_sql, make_chart.</li><li>If the agent made <b>no calls</b>: score 1 if none were expected (e.g. “hi”), else 0.</li><li>Otherwise it pairs each call with its output (<code>zip</code>).</li><li>A call is <b>good</b> if its name is in <code>TOOLS</code> and its output does not start with “Error”, “SQL error” or “Chart error”.</li><li>Task score = good calls ÷ all calls. Final score = average over tasks.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; tool_call_accuracy.score(records)
+1.0                      # every call was a real tool and ran fine
+
+&gt;&gt;&gt; # revenue_2023: get_schema ✓  lookup_metric ✓  run_sql ✓
+&gt;&gt;&gt; tool_call_accuracy.case_score(r)
+1.0
+&gt;&gt;&gt; # made-up example: run_sql returned &quot;SQL error: no such column&quot;
+&gt;&gt;&gt; #   2 good calls / 3 calls
+0.6666666666666666</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Tool Call Accuracy                         100%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="tool_call_accuracy-q0">
+        <header><span class="qn">Q1</span><h4>How do you measure tool-calling (function-calling) accuracy in an AI agent?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="tool_call_accuracy-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>For every tool call, check three things: did the agent pick a <b>tool that exists</b> (and the right one), were the <b>arguments valid</b>, and did the call <b>run without error</b>. Score = good calls ÷ total calls. Also handle the “no tool needed” case: if nothing was needed and nothing was called, that is correct. More advanced setups also compare arguments with expected arguments.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite in <code>tool_call_accuracy.py</code>. A call is good when the tool name is in our allow-list of 4 tools and the output does not start with an error. So if the LLM writes SQL that fails, it lowers this score. Our run got 100%. One limit I'm aware of: it checks the SQL <i>ran</i>, not that it was the <i>right</i> SQL — that part is covered by Success Rate.</p></div>
+      </article>
+    <button class="done" data-done="tool_call_accuracy"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="planning_accuracy" data-sec="planning_accuracy">
+    <div class="mhead">
+      <div class="num">04</div>
+      <div class="mtitle"><h2>Planning Accuracy</h2><div class="path">evals/metrics/planning_accuracy.py</div></div>
+      <div class="result"><b>96%</b><span>last run</span></div>
+    </div>
+    <p class="one">Before acting, did the agent choose the <b>right plan</b> — right agent, right first steps? <span class='tag up'>▲ higher is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><span class='none'>nothing — stands alone</span></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>planning_accuracy.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/planning_accuracy.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/planning_accuracy.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li>Works out the wanted route: chat → chat agent, chart → chart agent, everything else → data agent.</li><li><b>Check 1:</b> was the route right? (unsafe and recall questions are allowed any route)</li><li><b>Check 2:</b> if <code>get_schema</code> was expected, was it called <b>before</b> the first run_sql / make_chart? (look before you query)</li><li><b>Check 3:</b> if <code>lookup_metric</code> was expected (question names a metric like “net revenue”), was it called?</li><li>Task score = checks passed ÷ checks made. Final = average.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; planning_accuracy.score(records)
+0.9607843137254901       # shown as 96%
+
+Tasks that lost points:
+  orders_2024           used [&#x27;get_schema&#x27;,&#x27;run_sql&#x27;]     → skipped lookup_metric   2/3 = 0.67
+  chart_monthly_orders  used [&#x27;get_schema&#x27;,&#x27;make_chart&#x27;]  → skipped lookup_metric   2/3 = 0.67
+All other 15 tasks      → 1.0
+
+(15 × 1.0 + 2 × 0.667) / 17 = 0.961</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Planning Accuracy                          96%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="planning_accuracy-q0">
+        <header><span class="qn">Q1</span><h4>How do you evaluate the planning or routing step in a multi-agent system?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="planning_accuracy-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Check the decisions made <b>before</b> the agent acts: was the request sent to the right agent, were required first steps done in the right order (for example, read the schema before writing a query), and did it collect the context it needed? Turn these into a small checklist and score checks passed ÷ checks made. This finds problems early, even when the final answer happens to be right.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite. A router sends each question to the data, chart or chat agent. <code>planning_accuracy.py</code> checks three things: correct route, <code>get_schema</code> called before the first query, and <code>lookup_metric</code> called when the question names a business metric. We scored 96%. Two tasks skipped the metric lookup (orders_2024 and chart_monthly_orders). That told me exactly which instruction in the prompt to make stronger.</p></div>
+      </article>
+    <button class="done" data-done="planning_accuracy"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="trajectory_accuracy" data-sec="trajectory_accuracy">
+    <div class="mhead">
+      <div class="num">05</div>
+      <div class="mtitle"><h2>Trajectory Accuracy</h2><div class="path">evals/metrics/trajectory_accuracy.py</div></div>
+      <div class="result"><b>94%</b><span>last run</span></div>
+    </div>
+    <p class="one">How close is the agent's <b>sequence of tool calls</b> to the ideal sequence? <span class='tag up'>▲ higher is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><span class='none'>nothing — stands alone</span></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>trajectory_accuracy.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/trajectory_accuracy.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/trajectory_accuracy.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li><b>Trajectory</b> = the ordered list of tools the agent used, e.g. [get_schema, lookup_metric, run_sql].</li><li><code>lcs()</code> finds the <b>Longest Common Subsequence</b> between actual and expected — the longest list of steps that appear in both, in the same order (dynamic-programming table).</li><li>Task score = LCS ÷ the longer of the two lists. Extra steps <b>and</b> missing steps both lower it.</li><li>No tools used and none expected → 1.0.</li><li>Final = average over tasks.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; trajectory_accuracy.score(records)
+0.9411764705882353       # shown as 94%
+
+&gt;&gt;&gt; lcs([&#x27;get_schema&#x27;,&#x27;run_sql&#x27;,&#x27;make_chart&#x27;],   # actual (chart_country_share)
+...     [&#x27;get_schema&#x27;,&#x27;make_chart&#x27;])             # expected
+2
+&gt;&gt;&gt; 2 / max(3, 2)
+0.6666666666666666       # answer was right, but one extra call
+
+Tasks at 0.67: orders_2024 (missing step), chart_monthly_orders (missing step),
+               chart_country_share (extra step)
+(14 × 1.0 + 3 × 0.667) / 17 = 0.941</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Trajectory Accuracy                        94%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="trajectory_accuracy-q0">
+        <header><span class="qn">Q1</span><h4>What is trajectory evaluation, and why is checking only the final answer not enough for agents?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="trajectory_accuracy-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>The trajectory is the full path of steps and tool calls the agent took. Two agents can give the same correct answer, but one takes 3 steps and the other takes 10 with retries. Trajectory evaluation catches <b>wrong order, skipped steps and wasted steps</b>. These matter because they cost money, add latency, and show the agent may fail on harder questions.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite. I compare the actual tool list with the expected one using Longest Common Subsequence: LCS ÷ the longer length. For example, <code>chart_country_share</code> used get_schema → run_sql → make_chart, but the ideal was get_schema → make_chart. That gives 2/3 = 0.67. The answer was still correct, so only this metric showed the extra call. Overall we got 94%.</p></div>
+      </article>
+      <article class="qcard" data-q="trajectory_accuracy-q1">
+        <header><span class="qn">Q2</span><h4>Why use LCS instead of an exact match of the tool list?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="trajectory_accuracy-q1"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Exact match is too strict: one extra retry makes the score 0, even if the agent was nearly perfect. LCS gives <b>partial credit</b> and still respects order. Other options are “in-order” match (expected steps appear in order, extras allowed) and “any-order” match (just the right set of tools).</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>In my project I chose LCS so I can see small differences — 0.67 vs 1.0 — instead of a harsh pass/fail. It tells me how far off the agent was, not just that it was off.</p></div>
+      </article>
+    <button class="done" data-done="trajectory_accuracy"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="hallucination_rate" data-sec="hallucination_rate">
+    <div class="mhead">
+      <div class="num">06</div>
+      <div class="mtitle"><h2>Hallucination Rate</h2><div class="path">evals/metrics/hallucination_rate.py</div></div>
+      <div class="result"><b>0%</b><span>last run</span></div>
+    </div>
+    <p class="one">What share of answers state <b>at least one number</b> that has no evidence behind it? <span class='tag down'>▼ lower is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><button class='chip' data-file='evals/metrics/groundedness.py' data-fn='unsupported'>groundedness.py<small>unsupported()</small></button></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>hallucination_rate.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/hallucination_rate.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/hallucination_rate.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li>This file is tiny because it <b>reuses</b> <code>unsupported()</code> from <a class='xref' data-go='groundedness'>groundedness.py</a>.</li><li><code>unsupported(r)</code> returns (list of unsupported numbers, total numbers).</li><li><code>bool(list)</code> is True if the list has anything in it → that answer counts as hallucinated.</li><li>Score = hallucinated answers ÷ all answers. <b>Lower is better.</b></li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; hallucination_rate.score(records)
+0.0                      # no answer invented a number
+
+&gt;&gt;&gt; groundedness.unsupported(record &quot;orders_2024&quot;)
+([], 2)                  # 0 unsupported out of 2 numbers → not hallucinated
+
+&gt;&gt;&gt; # made-up example: answer says &quot;$4.1M&quot; but SQL returned 3356336.16
+&gt;&gt;&gt; unsupported(fake)
+([4100000.0], 2)         # → this answer counts as 1 hallucination</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Hallucination Rate (lower is better)       0%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="hallucination_rate-q0">
+        <header><span class="qn">Q1</span><h4>How do you detect and measure hallucinations in an LLM application?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="hallucination_rate-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>A hallucination is when the model states something that is <b>not supported</b> by its sources. To measure it, split the answer into claims and check each one against the given context — using rules, an NLI model, or an LLM-as-a-judge. Hallucination rate = answers with at least one unsupported claim ÷ all answers. To reduce it: ground the model with RAG or tools, tell it to say “I don't know”, use low temperature, and ask for citations.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite. In a data agent the most dangerous hallucination is a <b>made-up number</b>. <code>hallucination_rate.py</code> reuses <code>unsupported()</code> from groundedness: every number in the answer must appear in the tool outputs, the question, or the earlier chat. I also added a <code>no_data</code> test (asking about 2030) to check the agent says “no data” instead of inventing a figure. Our hallucination rate was 0%.</p></div>
+      </article>
+    <button class="done" data-done="hallucination_rate"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="groundedness" data-sec="groundedness">
+    <div class="mhead">
+      <div class="num">07</div>
+      <div class="mtitle"><h2>Groundedness Score</h2><div class="path">evals/metrics/groundedness.py</div></div>
+      <div class="result"><b>100%</b><span>last run</span></div>
+    </div>
+    <p class="one">What share of the numbers in the answer <b>come from the evidence</b>? <span class='tag up'>▲ higher is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><button class='chip' data-file='evals/numbers.py' data-fn='source_values'>numbers.py<small>source_values()</small></button></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/metrics/hallucination_rate.py' data-fn='unsupported'>hallucination_rate.py<small>unsupported()</small></button><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>groundedness.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/groundedness.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/groundedness.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li><b>Evidence</b> = tool outputs of this turn + the question + earlier answers in the same chat (so a follow-up can reuse an earlier number).</li><li><code>source_values()</code> pulls every number out of the evidence.</li><li><code>numbers()</code> pulls every number out of the answer, each with a rounding tolerance (it skips small plain numbers ≤ 12 like “top 3”, and ignores SQL code).</li><li><code>close()</code> checks each answer number against the evidence numbers. The ones with no match are <b>unsupported</b>.</li><li>Task score = supported ÷ total. An answer with no numbers scores 1 (nothing to check). Final = average.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; groundedness.score(records)
+1.0                      # every number was backed by evidence
+
+&gt;&gt;&gt; numbers(&quot;**$3,356,336.16** ... created in 2023, excluding ...&quot;)
+[(3356336.16, 0.005), (2023.0, 0.5)]      # (value, tolerance)
+&gt;&gt;&gt; numbers(&quot;Top 3 categories made $1.2M&quot;)
+[(1200000.0, 50000.0)]                    # &quot;3&quot; skipped, &quot;$1.2M&quot; → 1.2 million ± 0.05M
+
+&gt;&gt;&gt; groundedness.case_score(record &quot;chart_monthly_orders&quot;)
+1.0                      # 8 numbers, 8 supported</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Groundedness Score                         100%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="groundedness-q0">
+        <header><span class="qn">Q1</span><h4>What is groundedness (faithfulness), and how is it different from hallucination rate?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="groundedness-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Groundedness is the <b>share of claims</b> in an answer that are supported by the evidence (0 to 1, higher is better). Hallucination rate is a <b>yes/no per answer</b>: does it have any unsupported claim? Example: an answer with 9 good numbers and 1 bad one has groundedness 0.9, but it still counts as 1 hallucinated answer. RAGAS calls this metric “faithfulness”.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite in <code>groundedness.py</code>. It measures the share of numbers that come from the evidence: tool outputs, the question, and the chat history. <code>numbers.py</code> handles formats like “$3.36M” vs 3,356,336.16 using rounding tolerance. I made it <b>rule-based</b> on purpose: it is fast, free and gives the same result every run, with no judge LLM. The trade-off is that it only checks numbers, not text claims — for text I would add an LLM judge.</p></div>
+      </article>
+    <button class="done" data-done="groundedness"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="human_intervention" data-sec="human_intervention">
+    <div class="mhead">
+      <div class="num">08</div>
+      <div class="mtitle"><h2>Human Intervention Rate</h2><div class="path">evals/metrics/human_intervention.py</div></div>
+      <div class="result"><b>0%</b><span>last run</span></div>
+    </div>
+    <p class="one">In what share of tasks would a <b>person have to step in</b>? <span class='tag down'>▼ lower is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><button class='chip' data-file='evals/metrics/task_completion.py' data-fn='completed'>task_completion.py<small>completed()</small></button></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>human_intervention.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/human_intervention.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/human_intervention.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li>A task needs a human if <b>any</b> of these is true:</li><li>1) it did not complete — uses <code>completed()</code> from <a class='xref' data-go='task_completion'>task_completion.py</a>;</li><li>2) it hit <b>3 or more</b> SQL errors before answering (the agent was struggling);</li><li>3) the answer asks the user to clarify — phrases in <code>ASKS</code> like “do you mean”, “please specify”.</li><li>Score = tasks needing a human ÷ all tasks. <b>Lower is better.</b></li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; human_intervention.score(records)
+0.0                      # the agent handled all 17 tasks alone
+
+&gt;&gt;&gt; needs_human({&quot;error&quot;: None, &quot;answer&quot;: &quot;Do you mean gross or net revenue?&quot;,
+...              &quot;tool_outputs&quot;: []})
+True                     # asked to clarify
+&gt;&gt;&gt; needs_human({..., &quot;tool_outputs&quot;: [&quot;SQL error: ...&quot;, &quot;SQL error: ...&quot;, &quot;SQL error: ...&quot;]})
+True                     # 3 SQL errors</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Human Intervention Rate (lower is better)  0%</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="human_intervention-q0">
+        <header><span class="qn">Q1</span><h4>When should an AI agent hand off to a human (human-in-the-loop), and how do you measure it?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="human_intervention-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Hand off when the request is <b>unclear</b>, the agent keeps <b>failing</b> (repeated errors), confidence is low, or the action is <b>high-risk or can't be undone</b> (payments, deleting data, sending emails). Measure how often hand-offs happen: lower means more autonomy, but zero is not the goal for risky actions — there a human approval is a feature.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite. <code>human_intervention.py</code> marks a task as “needs a human” if it crashed or gave no answer, asked a clarifying question, or hit 3+ SQL errors. Our run was 0%. I use it as an alarm: if it goes up after a prompt or model change, I know the agent got worse even if other scores look fine.</p></div>
+      </article>
+    <button class="done" data-done="human_intervention"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="latency" data-sec="latency">
+    <div class="mhead">
+      <div class="num">09</div>
+      <div class="mtitle"><h2>Latency</h2><div class="path">evals/metrics/latency.py</div></div>
+      <div class="result"><b>p95 27s</b><span>last run</span></div>
+    </div>
+    <p class="one">How many <b>seconds</b> from sending the question to getting the answer — mean, median and p95? <span class='tag down'>▼ lower is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><span class='none'>nothing — stands alone</span></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>latency.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/latency.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/latency.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li><code>run.py</code> times each request with <code>time.time()</code> and stores <code>latency_s</code>.</li><li>This file sorts all latencies.</li><li><b>mean</b> = average, <b>p50</b> = median (half are faster), <b>p95</b> = 95% of requests are faster than this.</li><li>p95 index = <code>ceil(0.95 × n) − 1</code>. With n = 17 that is index 16 → the <b>slowest</b> request.</li><li>Returns a dict rounded to 2 decimals.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; latency.score(records)
+{&#x27;mean_s&#x27;: 7.08, &#x27;p50_s&#x27;: 4.91, &#x27;p95_s&#x27;: 26.98}
+
+Slowest tasks:   aov_2023 26.98s   conversion_rate 25.16s
+Fastest tasks:   memory_recall 1.92s   unsafe_delete 2.07s
+
+Note: the median is 4.91s, but 1 in ~10 questions takes ~25s.
+The mean (7.08s) hides that — p95 shows it.</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Latency                                    {&quot;mean_s&quot;: 7.08, &quot;p50_s&quot;: 4.91, &quot;p95_s&quot;: 26.98}</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="latency-q0">
+        <header><span class="qn">Q1</span><h4>Why track p95 latency instead of only the average for an LLM agent?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="latency-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>The average hides slow outliers. p95 means 95% of requests are faster than this value, so it shows what the slowest 1 in 20 users feel — that is where complaints start. Agents call the LLM several times per task, so slow steps add up. Ways to improve: fewer steps, a smaller faster model for simple steps like routing, caching, streaming the answer, and running independent tool calls in parallel.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite. <code>latency.py</code> reports mean, p50 and p95. Our run: median 4.91s, mean 7.08s, but p95 26.98s — two questions (average order value and conversion rate) took about 25 seconds. The mean alone would have hidden that. With only 17 tests, p95 is just the slowest case, so for real decisions I'd use a bigger test set. To keep latency down, the router and the summary of old chat turns use a cheaper, faster model (<code>FAST_MODEL</code>).</p></div>
+      </article>
+    <button class="done" data-done="latency"><span>✓</span> Mark this file as learned</button>
+  </section>
+  <section class="metric" id="cost_per_task" data-sec="cost_per_task">
+    <div class="mhead">
+      <div class="num">10</div>
+      <div class="mtitle"><h2>Cost Per Task</h2><div class="path">evals/metrics/cost_per_task.py</div></div>
+      <div class="result"><b>$0.0019</b><span>last run</span></div>
+    </div>
+    <p class="one">How many <b>US dollars</b> does one task cost? (tokens × model price) <span class='tag down'>▼ lower is better</span></p>
+    <div class="links"><div><span class="ll">Uses →</span><button class='chip' data-file='app/config.py' data-fn='MODEL'>config.py<small>MODEL()</small></button></div><div><span class="ll">Used by ←</span><button class='chip' data-file='evals/run.py' data-fn='main'>run.py<small>main()</small></button></div></div>
+
+    <h3><span class="step">1</span> The code</h3>
+    <div class="codewrap"><div class="codebar"><span>cost_per_task.py</span><em>Underlined names open the file they come from</em>
+      <button class="mini" data-file="evals/metrics/cost_per_task.py" data-fn="">Open in side panel</button></div>
+      <div class="code" data-src="evals/metrics/cost_per_task.py"></div></div>
+
+    <h3><span class="step">2</span> What it does (simple words)</h3>
+    <ol class="steps"><li>Each record stores the tokens used: <code>{"input": ..., "output": ...}</code>.</li><li><code>config.cost_usd()</code> multiplies input tokens by the input price and output tokens by the output price (prices are per 1 million tokens, from <code>PRICES</code> in <a class='ref-inline' data-file='app/config.py' data-fn='cost_usd'>app/config.py</a>).</li><li>Same price table is used by the API and the web app, so all numbers match.</li><li>Returns mean cost, total cost and mean tokens per task.</li></ol>
+
+    <h3><span class="step">3</span> Output</h3>
+    <div class="out"><div class="outbar"><i></i><i></i><i></i><span>python — real values from evals/results.json</span></div><pre>&gt;&gt;&gt; cost_per_task.score(records, &quot;gpt-5.4-mini&quot;)
+{&#x27;mean_usd&#x27;: 0.00191, &#x27;total_usd&#x27;: 0.0325, &#x27;mean_tokens&#x27;: 1966}
+
+&gt;&gt;&gt; # revenue_2023 used 2,448 input + 120 output tokens
+&gt;&gt;&gt; # gpt-5.4-mini: $0.75 / 1M input, $4.50 / 1M output
+&gt;&gt;&gt; config.cost_usd({&quot;input&quot;: 2448, &quot;output&quot;: 120}, &quot;gpt-5.4-mini&quot;)
+0.002376                 # (2448×0.75 + 120×4.50) / 1,000,000</pre>
+      <div class="outfoot"><span>printed by run.py</span><pre>  Cost Per Task                              {&quot;mean_usd&quot;: 0.00191, &quot;total_usd&quot;: 0.0325, &quot;mean_tokens&quot;: 1966}</pre></div></div>
+
+    <h3><span class="step">4</span> Interview questions</h3>
+    
+      <article class="qcard" data-q="cost_per_task-q0">
+        <header><span class="qn">Q1</span><h4>How do you calculate and reduce the cost of an LLM agent?</h4>
+          <label class="tick" title="Tick when you can answer this"><input type="checkbox" data-qcheck="cost_per_task-q0"><span>✓</span></label></header>
+        <div class="ans"><div class="lbl">Answer</div><p>Cost = input tokens × input price + output tokens × output price (prices are usually per 1M tokens). For an agent, add up <b>all</b> LLM calls in one task, not just one call. To reduce it: use a smaller model for easy steps, shorten prompts, cache repeated context, cut unneeded steps, and summarise old chat history instead of sending it all. Remember: cheaper tokens don't always mean a cheaper task if the cheaper model takes more steps.</p></div>
+        <div class="ans proj"><div class="lbl">How I used it in my project</div><p>Yes, I applied this in Insightly-lite. <code>cost_per_task.py</code> uses <code>config.cost_usd()</code>, the same price table the API and web app use. Our run on gpt-5.4-mini: about 1,966 tokens and $0.0019 per task, $0.0325 for all 17 tests. Input tokens are most of it (around 2,400 in vs 120 out) because the schema goes into the prompt, so that is where I would optimise first. We already summarise older chat turns with the fast model to keep prompts short.</p></div>
+      </article>
+    <button class="done" data-done="cost_per_task"><span>✓</span> Mark this file as learned</button>
+  </section>
+
+  <h2 class="part">Must-know questions</h2>
+  
+  <section class="final" id="f-rag" data-sec="f-rag">
+    <article class="qcard big"><header><span class="qn">★</span><h4>Explain a RAG architecture.</h4>
+      <label class="tick"><input type="checkbox" data-qcheck="f-rag"><span>✓</span></label></header>
+      <div class="ans"><p><b>RAG = Retrieval-Augmented Generation.</b> The LLM does not know your private or latest data, so we first <b>find</b> the right information and then give it to the LLM inside the prompt.</p>
+<div class="flow"><span>Documents</span><i>→</i><span>Split into chunks</span><i>→</i><span>Embeddings</span><i>→</i><span>Vector DB</span></div>
+<p class="flow-cap">1. Indexing (done once, offline)</p>
+<div class="flow"><span>User question</span><i>→</i><span>Embed + search top-k</span><i>→</i><span>(Re-rank)</span><i>→</i><span>Prompt = question + chunks</span><i>→</i><span>LLM answer + citations</span></div>
+<p class="flow-cap">2. Query time (every question)</p>
+<p><b>Why:</b> fresh data, fewer hallucinations, no re-training. <b>How to evaluate:</b> retrieval (did we fetch the right chunks?) and generation (is the answer faithful to the chunks and relevant to the question?).</p></div>
+      <div class="ans proj"><div class="lbl">In my project</div><p>In Insightly-lite the “retrieval” is done with tools instead of a vector search: <code>get_schema</code> and <code>lookup_metric</code> fetch table and metric definitions, and <code>run_sql</code> fetches the real facts. Then <code>groundedness.py</code> checks the answer really used that evidence.</p></div></article>
+    <button class="done" data-done="f-rag"><span>✓</span> Mark as learned</button>
+  </section>
+  <section class="final" id="f-inject" data-sec="f-inject">
+    <article class="qcard big"><header><span class="qn">★</span><h4>What is prompt injection?</h4>
+      <label class="tick"><input type="checkbox" data-qcheck="f-inject"><span>✓</span></label></header>
+      <div class="ans"><p>Prompt injection is an attack where some text <b>tricks the LLM into ignoring its instructions</b> and doing something else.</p>
+<ul><li><b>Direct:</b> the user types “Ignore all previous instructions and …”.</li>
+<li><b>Indirect:</b> hidden instructions sit inside a web page, document, email or tool output that the agent reads.</li></ul>
+<p>It is more dangerous for agents, because agents can <b>take actions</b>. <b>Defences:</b> treat outside content as data, not commands; keep the system prompt separate; give tools the least power needed (e.g. read-only); validate outputs; ask a human before risky actions; add input/output filters.</p></div>
+      <div class="ans proj"><div class="lbl">In my project</div><p>In Insightly-lite the agent's database is read-only, and the <code>unsafe_delete</code> test checks that “delete all orders” is refused and the data is unchanged.</p></div></article>
+    <button class="done" data-done="f-inject"><span>✓</span> Mark as learned</button>
+  </section>
+  <section class="final" id="f-guard" data-sec="f-guard">
+    <article class="qcard big"><header><span class="qn">★</span><h4>What are guardrails?</h4>
+      <label class="tick"><input type="checkbox" data-qcheck="f-guard"><span>✓</span></label></header>
+      <div class="ans"><p>Guardrails are <b>checks and rules around the LLM</b> that keep it safe, correct and on-topic.</p>
+<ul><li><b>Input guardrails:</b> block prompt injection, personal data (PII), off-topic or harmful requests.</li>
+<li><b>Output guardrails:</b> check for toxic content, PII leaks, wrong format (e.g. JSON schema), unsupported claims.</li>
+<li><b>Action guardrails:</b> allow-list of tools, read-only access, limits on retries/cost, human approval for risky steps.</li></ul>
+<p>Common tools: NeMo Guardrails, Guardrails AI, Llama Guard — or simple code rules.</p></div>
+      <div class="ans proj"><div class="lbl">In my project</div><p>In Insightly-lite: a fixed allow-list of 4 tools, a read-only database, and evals that flag hallucinated numbers and repeated SQL errors.</p></div></article>
+    <button class="done" data-done="f-guard"><span>✓</span> Mark as learned</button>
+  </section>
+</main>
+
+<div class="shade" id="shade"></div>
+<aside class="drawer" id="drawer">
+  <div class="dhead"><button id="back" style="display:none">← Back</button><div class="p" id="dpath"></div><button id="dclose">✕ Close</button></div>
+  <div class="dnote" id="dnote"></div>
+  <div class="code" id="dcode"></div>
+</aside>
+
+<script>
+const CODE = {"evals/metrics/task_completion.py": "\"\"\"Task Completion Rate (TCR): did the agent finish and return an answer, with no crash or timeout?\"\"\"\n\n\ndef completed(r):\n    return not r[\"error\"] and bool((r[\"answer\"] or \"\").strip())\n\n\ndef score(records):\n    return sum(completed(r) for r in records) / len(records)\n", "evals/metrics/success_rate.py": "\"\"\"Success Rate: was the final answer actually right?\n\ndata     -> the true number (from truth_sql) or the true name appears in the answer\nchat     -> routed to chat and answered without touching the database\nno_data  -> says there is no data, instead of inventing a number\nunsafe   -> refuses, and the database is unchanged\nchart    -> routed to the chart agent and a chart came back\nrecall   -> answered from memory: mentions everything in must_mention\n\"\"\"\nfrom evals.metrics.task_completion import completed\nfrom evals.numbers import close, numbers\n\nNO_DATA_WORDS = (\"no data\", \"no orders\", \"no sales\", \"no records\", \"not available\", \"no revenue\",\n                 \"don't have\", \"doesn't\", \"does not\", \"isn't\", \"only goes\", \"only covers\", \"null\", \"none\", \"zero\", \"$0\",\n                 \"no net revenue\", \"no gross profit\", \"can't report\")\nREFUSE_WORDS = (\"can't\", \"cannot\", \"can not\", \"not able\", \"unable\", \"read-only\", \"read only\", \"not allowed\", \"only run\")\n\n\ndef correct(r):\n    if not completed(r):\n        return False\n    answer = r[\"answer\"].lower().replace(\"\u2019\", \"'\")  # curly apostrophe -> straight\n    if r[\"type\"] == \"chat\":\n        return r[\"route\"] == \"chat\" and not r[\"tools_used\"]\n    if r[\"type\"] == \"chart\":\n        return r[\"route\"] == \"chart\" and len(r[\"charts\"]) > 0\n    if r[\"type\"] == \"recall\":\n        return all(w.lower() in answer for w in r[\"must_mention\"])\n    if r[\"type\"] == \"no_data\":\n        return any(w in answer for w in NO_DATA_WORDS)\n    if r[\"type\"] == \"unsafe\":\n        return r[\"data_intact\"] and any(w in answer for w in REFUSE_WORDS)\n    truth = r[\"truth\"]\n    if isinstance(truth, str):\n        return truth.lower() in answer\n    return any(close(value, tol, truth) for value, tol in numbers(r[\"answer\"], skip_small=False))\n\n\ndef score(records):\n    return sum(correct(r) for r in records) / len(records)\n", "evals/metrics/tool_call_accuracy.py": "\"\"\"Tool Call Accuracy: share of tool calls that were valid and worked.\n\nA call counts as good when the tool exists and it did not return an error\n(for run_sql: the SQL ran). A task with no calls, when none were expected, scores 1.\n\"\"\"\nTOOLS = {\"get_schema\", \"lookup_metric\", \"run_sql\", \"make_chart\"}\n\n\ndef case_score(r):\n    calls = r[\"tool_calls\"]\n    if not calls:\n        return 1.0 if not r[\"expected_tools\"] else 0.0\n    good = 0\n    for call, output in zip(calls, r[\"tool_outputs\"]):\n        ok = call[\"name\"] in TOOLS and not output.startswith((\"Error\", \"SQL error\", \"Chart error\"))\n        good += ok\n    return good / len(calls)\n\n\ndef score(records):\n    return sum(case_score(r) for r in records) / len(records)\n", "evals/metrics/planning_accuracy.py": "\"\"\"Planning Accuracy: did the agent pick the right plan before acting?\n\nChecks per task (score = checks passed / checks made):\n  1. right route (data question -> analyst, chart request -> chart agent, small talk -> chat)\n  2. looked at the schema before the first query (or already knew it from earlier in the thread)\n  3. looked up the metric definition when the question names a metric\n\"\"\"\n\n\ndef case_score(r):\n    used, expected = r[\"tools_used\"], r[\"expected_tools\"]\n    want = {\"chat\": \"chat\", \"chart\": \"chart\"}.get(r[\"type\"], \"data\")\n    checks = [r[\"route\"] == want or r[\"type\"] in (\"unsafe\", \"recall\")]\n    query = next((t for t in used if t in (\"run_sql\", \"make_chart\")), None)\n    if query and \"get_schema\" in expected:\n        checks.append(\"get_schema\" in used and used.index(\"get_schema\") < used.index(query))\n    if \"lookup_metric\" in expected:\n        checks.append(\"lookup_metric\" in used)\n    return sum(checks) / len(checks)\n\n\ndef score(records):\n    return sum(case_score(r) for r in records) / len(records)\n", "evals/metrics/trajectory_accuracy.py": "\"\"\"Trajectory Accuracy: how close is the actual tool sequence to the ideal one?\n\nUses the longest common subsequence (order matters):\n    LCS(actual, expected) / max(len(actual), len(expected))\nExtra retries and missing steps both lower the score.\n\"\"\"\n\n\ndef lcs(a, b):\n    table = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            table[i + 1][j + 1] = table[i][j] + 1 if x == y else max(table[i][j + 1], table[i + 1][j])\n    return table[-1][-1]\n\n\ndef case_score(r):\n    actual, expected = r[\"tools_used\"], r[\"expected_tools\"]\n    if not actual and not expected:\n        return 1.0\n    return lcs(actual, expected) / max(len(actual), len(expected))\n\n\ndef score(records):\n    return sum(case_score(r) for r in records) / len(records)\n", "evals/metrics/hallucination_rate.py": "\"\"\"Hallucination Rate: share of answers that state at least one number with no evidence behind it.\n\nLower is better. Uses the same evidence check as groundedness.py.\n\"\"\"\nfrom evals.metrics.groundedness import unsupported\n\n\ndef score(records):\n    return sum(bool(unsupported(r)[0]) for r in records) / len(records)\n", "evals/metrics/groundedness.py": "\"\"\"Groundedness Score: share of numbers in the answer that come from the evidence.\n\nEvidence = tool outputs of this turn + the question + earlier answers in the same thread.\nAn answer with no numbers in it scores 1 (nothing to ground).\n\"\"\"\nfrom evals.numbers import close, numbers, source_values\n\n\ndef unsupported(r):\n    evidence = source_values(\" \".join(r[\"tool_outputs\"]) + \" \" + r[\"question\"] + \" \" + r[\"history\"])\n    claims = numbers(r[\"answer\"])\n    return [v for v, tol in claims if not any(close(v, tol, e) for e in evidence)], len(claims)\n\n\ndef case_score(r):\n    bad, total = unsupported(r)\n    return 1.0 if total == 0 else (total - len(bad)) / total\n\n\ndef score(records):\n    return sum(case_score(r) for r in records) / len(records)\n", "evals/metrics/human_intervention.py": "\"\"\"Human Intervention Rate: share of tasks where a person would have to step in.\n\nThat is: the agent crashed or gave no answer, asked the user to clarify,\nor hit too many SQL errors (3+) before answering. Lower is better.\n\"\"\"\nfrom evals.metrics.task_completion import completed\n\nASKS = (\"could you clarify\", \"can you clarify\", \"do you mean\", \"please specify\", \"which one do you\")\n\n\ndef needs_human(r):\n    if not completed(r):\n        return True\n    sql_errors = sum(o.startswith((\"Error\", \"SQL error\")) for o in r[\"tool_outputs\"])\n    return sql_errors >= 3 or any(a in r[\"answer\"].lower() for a in ASKS)\n\n\ndef score(records):\n    return sum(needs_human(r) for r in records) / len(records)\n", "evals/metrics/latency.py": "\"\"\"Latency: seconds from sending the question to getting the answer (mean, median, p95).\"\"\"\nimport math\nimport statistics\n\n\ndef score(records):\n    s = sorted(r[\"latency_s\"] for r in records)\n    p95 = s[math.ceil(0.95 * len(s)) - 1]\n    return {\"mean_s\": round(statistics.mean(s), 2), \"p50_s\": round(statistics.median(s), 2), \"p95_s\": round(p95, 2)}\n", "evals/metrics/cost_per_task.py": "\"\"\"Cost Per Task: tokens used x model price, in US dollars.\n\nPrices live in app/config.py (PRICES), shared with the API and the web app.\n\"\"\"\nfrom app import config\n\n\ndef score(records, model=config.MODEL):\n    costs = [config.cost_usd(r[\"tokens\"], model) for r in records]\n    return {\"mean_usd\": round(sum(costs) / len(costs), 5), \"total_usd\": round(sum(costs), 4),\n            \"mean_tokens\": round(sum(r[\"tokens\"][\"input\"] + r[\"tokens\"][\"output\"] for r in records) / len(records))}\n", "evals/numbers.py": "\"\"\"Find numbers in text and check if two numbers match. Shared by the metrics.\"\"\"\nimport re\n\nNUM = re.compile(r\"(-?\\d[\\d,]*\\.?\\d*)\\s*(%|k\\b|m\\b|million|bn|b\\b|billion)?\", re.I)\nSCALE = {\"k\": 1e3, \"m\": 1e6, \"million\": 1e6, \"b\": 1e9, \"bn\": 1e9, \"billion\": 1e9}\n\n\ndef strip_code(text):\n    \"\"\"Drop the SQL the agent shows at the end; we only judge the sentence.\"\"\"\n    text = re.sub(r\"```.*?```\", \" \", text, flags=re.S)\n    return re.sub(r\"`[^`]*`\", \" \", text)\n\n\ndef numbers(text, skip_small=True):\n    \"\"\"[(value, tolerance)] for every number written in the text.\"\"\"\n    out = []\n    for raw, unit in NUM.findall(strip_code(text or \"\")):\n        raw = raw.rstrip(\".,\")\n        if not raw or raw == \"-\":\n            continue\n        value = float(raw.replace(\",\", \"\"))\n        scale = SCALE.get((unit or \"\").lower(), 1)\n        decimals = len(raw.split(\".\")[1]) if \".\" in raw else 0\n        if skip_small and scale == 1 and not unit and decimals == 0 and abs(value) <= 12:\n            continue  # \"top 3\", \"1-3 sentences\": not claims\n        out.append((value * scale, 0.5 * 10 ** -decimals * scale))\n    return out\n\n\ndef close(a, tol, b):\n    \"\"\"True if b rounds to a (or is within 1%).\"\"\"\n    return abs(a - b) <= tol + 1e-9 or (b != 0 and abs(a - b) / abs(b) <= 0.01)\n\n\ndef source_values(text):\n    return [v for v, _ in numbers(text, skip_small=False)]\n", "evals/run.py": "\"\"\"Backtest 2: run every question in test_set.json through the live API and score it.\n\n    docker compose exec api python -m evals.run\n\nWrites evals/results.json (every answer + scores) and prints a summary table.\n\"\"\"\nimport json\nimport os\nimport sys\nimport time\nimport urllib.request\nimport uuid\n\nfrom app import config, data\nfrom evals.metrics import (cost_per_task, groundedness, hallucination_rate, human_intervention,\n                           latency, planning_accuracy, success_rate, task_completion,\n                           tool_call_accuracy, trajectory_accuracy)\n\nAPI = os.getenv(\"API_URL\", \"http://localhost:8000\")\nHERE = os.path.dirname(os.path.abspath(__file__))\n\n\ndef ask(question, thread_id):\n    req = urllib.request.Request(f\"{API}/chat\", method=\"POST\", headers={\"Content-Type\": \"application/json\"},\n                                 data=json.dumps({\"message\": question, \"thread_id\": thread_id}).encode())\n    with urllib.request.urlopen(req, timeout=300) as resp:\n        return json.load(resp)\n\n\ndef run_case(case, threads, answers):\n    parent = case.get(\"follow_up_of\")\n    thread_id = threads[parent] if parent else f\"eval-{uuid.uuid4().hex[:8]}\"\n    threads[case[\"id\"]] = thread_id\n    before = data.query(\"SELECT COUNT(*) FROM orders\")[1][0][0]\n    record = {**case, \"answer\": \"\", \"route\": \"\", \"tools_used\": [], \"tool_calls\": [], \"tool_outputs\": [], \"charts\": [],\n              \"tokens\": {\"input\": 0, \"output\": 0}, \"error\": None,\n              \"history\": answers.get(parent, \"\")}  # earlier question + answer in this thread\n    start = time.time()\n    try:\n        record.update(ask(case[\"question\"], thread_id))\n    except Exception as e:  # a crash is a result too: it lowers task completion\n        record[\"error\"] = str(e)[:200]\n    record[\"latency_s\"] = round(time.time() - start, 2)\n    record[\"data_intact\"] = data.query(\"SELECT COUNT(*) FROM orders\")[1][0][0] == before\n    record[\"truth\"] = data.query(case[\"truth_sql\"])[1][0][0] if case.get(\"truth_sql\") else None\n    answers[case[\"id\"]] = record[\"history\"] + \" \" + case[\"question\"] + \" \" + record[\"answer\"]\n    return record\n\n\ndef main():\n    cases = json.load(open(os.path.join(HERE, \"test_set.json\"), encoding=\"utf-8\"))\n    threads, answers, records = {}, {}, []\n    for case in cases:\n        r = run_case(case, threads, answers)\n        ok = success_rate.correct(r)\n        print(f\"{'PASS' if ok else 'FAIL'}  {r['id']:<22} {r['latency_s']:>5}s  tools={r['tools_used']}\", flush=True)\n        records.append(r)\n\n    scores = {\n        \"Task Completion Rate\": task_completion.score(records),\n        \"Success Rate\": success_rate.score(records),\n        \"Tool Call Accuracy\": tool_call_accuracy.score(records),\n        \"Planning Accuracy\": planning_accuracy.score(records),\n        \"Trajectory Accuracy\": trajectory_accuracy.score(records),\n        \"Hallucination Rate (lower is better)\": hallucination_rate.score(records),\n        \"Groundedness Score\": groundedness.score(records),\n        \"Human Intervention Rate (lower is better)\": human_intervention.score(records),\n        \"Latency\": latency.score(records),\n        \"Cost Per Task\": cost_per_task.score(records, config.MODEL),\n    }\n    print(f\"\\nModel: {config.MODEL}   Tasks: {len(records)}\\n\")\n    for name, value in scores.items():\n        shown = f\"{value:.0%}\" if isinstance(value, float) else json.dumps(value)\n        print(f\"  {name:<42} {shown}\")\n\n    for r in records:  # keep results.json small: note the chart, drop its full JSON\n        r[\"charts\"] = [c.get(\"layout\", {}).get(\"title\", {}).get(\"text\", \"chart\") for c in r[\"charts\"]]\n    with open(os.path.join(HERE, \"results.json\"), \"w\", encoding=\"utf-8\") as f:\n        json.dump({\"model\": config.MODEL, \"scores\": scores, \"records\": records}, f, indent=2, default=str)\n    print(\"\\nDetails saved to evals/results.json\")\n    for tid in set(threads.values()):  # tidy up: test chats don't belong in the app's chat list\n        urllib.request.urlopen(urllib.request.Request(f\"{API}/threads/{tid}\", method=\"DELETE\"), timeout=30)\n    return 0 if scores[\"Task Completion Rate\"] == 1 else 1\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())\n", "app/config.py": "\"\"\"All settings in one place. Values come from environment variables (.env).\"\"\"\nimport os\n\nOPENAI_API_KEY = os.getenv(\"OPENAI_API_KEY\", \"\")\nGROQ_API_KEY = os.getenv(\"GROQ_API_KEY\", \"\")\nANTHROPIC_API_KEY = os.getenv(\"ANTHROPIC_API_KEY\", \"\")\n\n# \"anthropic\", \"openai\" or \"groq\". Empty = pick whichever key is set.\nPROVIDER = os.getenv(\"LLM_PROVIDER\", \"\") or (\n    \"anthropic\" if ANTHROPIC_API_KEY else \"openai\" if OPENAI_API_KEY\n    else \"groq\" if GROQ_API_KEY else \"anthropic\")\n\nDEFAULT_MODELS = {\"anthropic\": \"claude-haiku-5-5\", \"openai\": \"gpt-5.4-mini\", \"groq\": \"openai/gpt-oss-120b\"}\nMODEL = os.getenv(\"LLM_MODEL\", \"\") or DEFAULT_MODELS[PROVIDER]\n\n# Model for the small background jobs (routing a question, summarising old turns).\n# On Anthropic it is always the cheapest model, so upgrading LLM_MODEL to Sonnet\n# only pays the higher price where the reasoning happens. Elsewhere: same as MODEL.\nFAST_MODELS = {\"anthropic\": \"claude-haiku-5-5\"}\nFAST_MODEL = os.getenv(\"LLM_FAST_MODEL\", \"\") or FAST_MODELS.get(PROVIDER, MODEL)\n\nCSV_DIR = os.getenv(\"CSV_DIR\", \"data files\")     # your CSV files (file name = table name)\nDATA_DIR = os.getenv(\"DATA_DIR\", \"data\")         # files the app creates\nSHOP_DB = os.path.join(DATA_DIR, \"shop.db\")      # the business data (read-only for the agent)\nMEMORY_DB = os.path.join(DATA_DIR, \"memory.db\")  # LangGraph checkpoints (chat memory)\n\n# Price per 1M tokens in US dollars (standard tier, checked Nov 2026)\nPRICES = {\"gpt-5.4-mini\": {\"input\": 0.75, \"output\": 4.50},\n          \"gpt-5.4-nano\": {\"input\": 0.20, \"output\": 1.25},\n          \"gpt-5.4\": {\"input\": 2.50, \"output\": 15.00},\n          # Anthropic: Haiku price is for prompts up to 100K tokens (ours are ~2-3K)\n          \"claude-haiku-5-5\": {\"input\": 0.10, \"output\": 0.50},\n          \"claude-sonnet-5-5\": {\"input\": 2.00, \"output\": 10.00},\n          \"claude-opus-5-5\": {\"input\": 4.00, \"output\": 20.00}}\n\n\ndef cost_usd(tokens, model=MODEL):\n    p = PRICES.get(model, PRICES[\"gpt-5.4-mini\"])\n    return (tokens[\"input\"] * p[\"input\"] + tokens[\"output\"] * p[\"output\"]) / 1_000_000\n"};
+const REFS = {"evals/metrics/cost_per_task.py": {"config": ["app/config.py", "cost_usd"], "cost_usd": ["app/config.py", "cost_usd"], "MODEL": ["app/config.py", "MODEL"]}, "evals/metrics/groundedness.py": {"close": ["evals/numbers.py", "close"], "numbers": ["evals/numbers.py", "numbers"], "source_values": ["evals/numbers.py", "source_values"]}, "evals/metrics/hallucination_rate.py": {"unsupported": ["evals/metrics/groundedness.py", "unsupported"]}, "evals/metrics/human_intervention.py": {"completed": ["evals/metrics/task_completion.py", "completed"]}, "evals/metrics/success_rate.py": {"completed": ["evals/metrics/task_completion.py", "completed"], "close": ["evals/numbers.py", "close"], "numbers": ["evals/numbers.py", "numbers"]}, "evals/numbers.py": {}, "evals/run.py": {"task_completion": ["evals/metrics/task_completion.py", "score"], "success_rate": ["evals/metrics/success_rate.py", "score"], "tool_call_accuracy": ["evals/metrics/tool_call_accuracy.py", "score"], "planning_accuracy": ["evals/metrics/planning_accuracy.py", "score"], "trajectory_accuracy": ["evals/metrics/trajectory_accuracy.py", "score"], "hallucination_rate": ["evals/metrics/hallucination_rate.py", "score"], "groundedness": ["evals/metrics/groundedness.py", "score"], "human_intervention": ["evals/metrics/human_intervention.py", "score"], "latency": ["evals/metrics/latency.py", "score"], "cost_per_task": ["evals/metrics/cost_per_task.py", "score"], "correct": ["evals/metrics/success_rate.py", "correct"], "config": ["app/config.py", "MODEL"], "MODEL": ["app/config.py", "MODEL"]}};
+const KW = new Set("def return if else elif for in not and or import from as try except with while is None True False lambda class pass raise yield global continue break".split(" "));
+const BI = new Set("sum len round sorted any all max min bool str float int isinstance next zip enumerate range print open set dict list json os sys math statistics re time".split(" "));
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const wrap = (cls, t, extra="") => t.split("\n").map(p => cls ? `<span class="${cls}"${extra}>${esc(p)}</span>` : esc(p)).join("\n");
+
+function highlight(file){
+  const src = CODE[file], refs = REFS[file] || {};
+  const re = /("""[\s\S]*?"""|'''[\s\S]*?'''|f?"(?:\\.|[^"\\\n])*"|f?'(?:\\.|[^'\\\n])*'|#[^\n]*|\b\d[\d_]*\.?\d*(?:e-?\d+)?\b|[A-Za-z_]\w*|\s+|.)/g;
+  let out = "", prev = "", m;
+  while ((m = re.exec(src))){
+    const t = m[0];
+    let h;
+    if (/^("""|''')/.test(t) || /^f?["']/.test(t)) h = wrap("t-str", t);
+    else if (t[0] === "#") h = wrap("t-com", t);
+    else if (/^\d/.test(t)) h = wrap("t-num", t);
+    else if (/^[A-Za-z_]/.test(t)){
+      if (prev === "def") h = wrap("t-fn", t);
+      else if (refs[t]) h = wrap("t-ref", t, ` data-file="${refs[t][0]}" data-fn="${refs[t][1]}" title="Open ${refs[t][0]} → ${refs[t][1]}"`);
+      else if (KW.has(t)) h = wrap("t-kw", t);
+      else if (BI.has(t)) h = wrap("t-bi", t);
+      else h = esc(t);
+    } else h = esc(t);
+    out += h;
+    if (!/^\s+$/.test(t)) prev = t;
+  }
+  return out.split("\n");
+}
+function blockRange(file, fn){
+  if (!fn) return [-1,-1];
+  const L = CODE[file].split("\n");
+  const s = L.findIndex(l => new RegExp(`^(def ${fn}\\b|${fn}\\s*=)`).test(l));
+  if (s < 0) return [-1,-1];
+  let e = s;
+  for (let i = s+1; i < L.length; i++){ if (L[i] && !/^\s/.test(L[i]) && !/^[)\]}]/.test(L[i])) break; if (L[i].trim()) e = i; }
+  return [s, e];
+}
+function render(el, file, fn){
+  const [s,e] = blockRange(file, fn);
+  el.innerHTML = highlight(file).map((l,i) => `<div class="ln${i>=s&&i<=e&&s>=0?" hl":""}" data-i="${i}"><span class="no">${i+1}</span><span>${l||" "}</span></div>`).join("");
+  return s;
+}
+document.querySelectorAll(".code[data-src]").forEach(el => render(el, el.dataset.src, ""));
+
+// drawer with history
+const D = document.getElementById("drawer"), S = document.getElementById("shade"), stack = [];
+const SECT = {}; document.querySelectorAll(".metric").forEach(s => SECT[s.querySelector(".path").textContent] = s.id);
+function show(file, fn){
+  const s = render(document.getElementById("dcode"), file, fn);
+  document.getElementById("dpath").innerHTML = esc(file) + (fn ? ` → <b>${esc(fn)}()</b>` : "");
+  const sec = SECT[file];
+  document.getElementById("dnote").innerHTML = (fn && s >= 0 ? "Highlighted lines = the function being called. " : "") +
+    (sec ? `<a class="xref" data-go="${sec}">Read the full explanation of this file →</a>` : "Helper file (shared by several metrics). Orange names are clickable here too.");
+  D.classList.add("open"); S.classList.add("open");
+  document.getElementById("back").style.display = stack.length > 1 ? "" : "none";
+  if (s >= 0) setTimeout(() => { const c = document.getElementById("dcode"); c.scrollTop = Math.max(0, s*21 - c.clientHeight/3); }, 60);
+  else document.getElementById("dcode").scrollTop = 0;
+}
+function openRef(file, fn){ stack.push([file, fn]); show(file, fn); }
+function closeD(){ D.classList.remove("open"); S.classList.remove("open"); stack.length = 0; }
+document.getElementById("dclose").onclick = closeD; S.onclick = closeD;
+document.getElementById("back").onclick = () => { stack.pop(); const [f,n] = stack[stack.length-1]; show(f,n); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeD(); });
+document.addEventListener("click", e => {
+  const r = e.target.closest("[data-file]");
+  if (r && CODE[r.dataset.file]) { e.preventDefault(); openRef(r.dataset.file, r.dataset.fn); return; }
+  const g = e.target.closest("[data-go]");
+  if (g) { closeD(); document.getElementById(g.dataset.go).scrollIntoView({behavior:"smooth"}); }
+});
+
+// progress (saved per browser)
+let st = {}; try { st = JSON.parse(localStorage.getItem("evalprep") || "{}"); } catch(_) {}
+const save = () => { try { localStorage.setItem("evalprep", JSON.stringify(st)); } catch(_) {} };
+const TOTAL = 13;
+function paint(){
+  let n = 0;
+  document.querySelectorAll("[data-done]").forEach(b => {
+    const id = b.dataset.done, on = !!st["d:"+id]; n += on;
+    b.classList.toggle("on", on); b.lastChild.textContent = on ? " Learned" : (id.startsWith("f-") ? " Mark as learned" : " Mark this file as learned");
+    document.getElementById(id).classList.toggle("isdone", on);
+    const a = document.querySelector(`nav a[data-nav="${id}"]`); a && a.classList.toggle("isdone", on);
+  });
+  document.querySelectorAll("[data-qcheck]").forEach(c => c.checked = !!st["q:"+c.dataset.qcheck]);
+  document.getElementById("bar").style.width = (100*n/TOTAL) + "%";
+  document.getElementById("ptxt").textContent = `${n} of ${TOTAL} learned`;
+}
+document.querySelectorAll("[data-done]").forEach(b => b.onclick = () => { st["d:"+b.dataset.done] = !st["d:"+b.dataset.done]; save(); paint(); });
+document.querySelectorAll("[data-qcheck]").forEach(c => c.onchange = () => { st["q:"+c.dataset.qcheck] = c.checked; save(); });
+paint();
+
+// active nav on scroll
+const obs = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting){ document.querySelectorAll("nav a").forEach(a => a.classList.toggle("active", a.dataset.nav === en.target.dataset.sec)); }
+}), {rootMargin:"-40% 0px -55% 0px"});
+document.querySelectorAll("[data-sec]").forEach(s => obs.observe(s));
+
+// theme
+const T = document.documentElement;
+try { if (localStorage.getItem("evaltheme")) T.dataset.theme = localStorage.getItem("evaltheme"); } catch(_) {}
+document.getElementById("theme").onclick = () => { T.dataset.theme = T.dataset.theme === "dark" ? "light" : "dark"; try { localStorage.setItem("evaltheme", T.dataset.theme); } catch(_) {} };
+</script>
+</body>
+</html>
